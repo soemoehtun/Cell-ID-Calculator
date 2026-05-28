@@ -101,7 +101,7 @@ Enter a full identifier value and the tool will:
 ## File Structure
 
 ```
-Frequency Calculator/
+Cell ID Calculator/
 │
 ├── index.html     # Main tool (single self-contained file)
 └── README.md                  # This file
