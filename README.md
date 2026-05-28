@@ -103,7 +103,7 @@ Enter a full identifier value and the tool will:
 ```
 Frequency Calculator/
 │
-├── cellid_calculator.html     # Main tool (single self-contained file)
+├── index.html     # Main tool (single self-contained file)
 └── README.md                  # This file
 ```
 
