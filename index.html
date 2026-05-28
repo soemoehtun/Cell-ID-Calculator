@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cell ID Calculator</title>
+
+    <style>
+        html, body {
+            overflow-x: hidden;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(145deg, #eef0f4 0%, #e4e6eb 100%);
+            min-height: 100vh;
+            color: #333;
+            font-size: 13px;
+        }
+
+        /* ── Page container ── */
+        .page-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 60px 24px 48px;
+        }
+
+        /* ── In-frame header bar ── */
+        .page-header-bar {
+            padding: 14px 20px 13px;
+            border-bottom: 1px solid #e8e8e8;
+            background: #fff;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: -0.2px;
+            line-height: 1;
+        }
+
+        .page-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        /* ── Page wrapper ── */
+        .page-wrap {
+            background: #fff;
+            border: 1px solid #d8dbe0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        /* ── Tab bar ── */
+        .tab-bar {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 0;
+            background: #fff;
+            border-radius: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 8px;
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            color: #555;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: color 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .tab-btn:hover {
+            color: #0083c1;
+        }
+
+        .tab-btn.active {
+            color: #0083c1;
+            border-bottom-color: #0083c1;
+            font-weight: 600;
+        }
+
+        /* ── Main panel layout ── */
+        .main-panel {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 0;
+            align-items: start;
+            padding: 20px 100px 20px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* ── White card ── */
+        .card {
+            background: #fff;
+            border: 1px solid #e4e4e4;
+            border-radius: 3px;
+            padding: 16px 40px;
+        }
+
+        /* ── Section label ── */
+        .section-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* ── Form row ── */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 14px;
+            align-items: end;
+        }
+
+        .form-row.two-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-row.three-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group label .req {
+            color: #c2002f;
+            margin-left: 2px;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            height: 32px;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            padding: 0 10px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #333;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        select:focus, input:focus {
+            border-color: #0083c1;
+            box-shadow: 0 0 0 2px rgba(0,131,193,0.12);
+        }
+
+        select:disabled, input:disabled {
+            background: #f7f7f7;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* ── Radio group ── */
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            padding: 6px 0;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            font-weight: 400;
+        }
+
+        .radio-group input[type="radio"] {
+            width: 15px;
+            height: 15px;
+            accent-color: #0083c1;
+            cursor: pointer;
+        }
+
+        /* ── Calculate button ── */
+        .calc-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px;
+        }
+
+        .btn-calc {
+            background: #0083c1;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0 28px;
+            height: 32px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-calc:hover {
+            background: #006fa8;
+        }
+
+        .btn-calc:active {
+            transform: translateY(1px);
+        }
+
+        .btn-clear-sm {
+            background: transparent;
+            color: #0083c1;
+            border: 1px solid #0083c1;
+            border-radius: 3px;
+            padding: 0 18px;
+            height: 32px;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-clear-sm:hover {
+            background: #f0f8ff;
+        }
+
+        /* ── Output section ── */
+        .output-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .output-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .output-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .output-field label {
+            font-size: 12px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .output-value {
+            height: 32px;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            padding: 0 10px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #333;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .output-value.highlighted {
+            background: #fff;
+            border-color: #d0d0d0;
+            color: #333;
+            font-weight: 400;
+        }
+
+        /* ── Right side info panel ── */
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-left: 50px;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.75;
+            min-height: 160px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table tr td {
+            padding: 2px 0;
+            vertical-align: top;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .info-table tr td:first-child {
+            color: #777;
+            width: 100px;
+            padding-right: 10px;
+        }
+
+        .info-table tr td:last-child {
+            color: #333;
+            white-space: nowrap;
+        }
+
+        /* ── Sub-label ── */
+        .sub-label {
+            font-size: 12px;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        /* ── Error ── */
+        .error-bar {
+            background: #fff3f3;
+            border: 1px solid #f5c6cb;
+            border-radius: 3px;
+            padding: 8px 14px;
+            color: #c2002f;
+            font-size: 12.5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error-bar.visible {
+            display: block;
+        }
+
+        /* ── Tab sections ── */
+        #cgiSection, #ecgiSection, #nciSection {
+            display: none;
+        }
+        #cgiSection.active-tab { display: block; }
+        #ecgiSection.active-tab { display: block; }
+        #nciSection.active-tab { display: block; }
+
+        /* ── Operation Guide accordion ── */
+        .op-guide {
+            background: #fff;
+            border: none;
+            border-top: 1px solid #e4e4e4;
+            border-radius: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .op-guide-header {
+            padding: 9px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #ebf5fb;
+            border-bottom: 1px solid transparent;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .op-guide-header:hover {
+            background: #f2f2f2;
+        }
+
+        .op-guide-header .arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.22s ease;
+            color: #888;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .op-guide-header.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .op-guide-header.open {
+            border-bottom-color: #e4e4e4;
+        }
+
+        .op-guide-body {
+            display: none;
+            padding: 12px 20px 16px;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .op-guide-body.open {
+            display: block;
+        }
+
+        .op-guide-body p {
+            margin-bottom: 4px;
+        }
+
+        .formula-box {
+            background: #f8f9fa;
+            border: 1px solid #e8e8e8;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        /* ── Tablet (≤ 1024px) ── */
+        @media (max-width: 1024px) {
+            .page-container {
+                padding: 24px 16px 36px;
+            }
+            .main-panel {
+                grid-template-columns: 1fr 260px;
+                padding: 14px 16px;
+            }
+        }
+
+        /* ── Small Tablet / Large Mobile (≤ 860px) ── */
+        @media (max-width: 860px) {
+            .main-panel {
+                grid-template-columns: 1fr;
+                padding: 14px 16px;
+            }
+            .info-panel {
+                border-left: none;
+                border-top: 1px solid #ebebeb;
+                padding-left: 0;
+                padding-top: 14px;
+                min-height: unset;
+            }
+            .output-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .form-row.two-col {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ── Mobile (≤ 600px) ── */
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+                margin: 0;
+                width: 100vw;
+                overflow-x: hidden;
+                background: #fff;
+            }
+            .page-container {
+                padding: 0 0 24px;
+                margin: 0;
+                width: 100%;
+                max-width: 100vw;
+            }
+            .page-wrap {
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                width: 100%;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+            .page-header-bar {
+                padding: 12px 16px 11px;
+            }
+            .page-title {
+                font-size: 14px;
+            }
+            .page-subtitle {
+                font-size: 11.5px;
+            }
+            .tab-bar {
+                padding: 0 4px;
+            }
+            .tab-btn {
+                padding: 10px 13px;
+                font-size: 12px;
+            }
+            .main-panel {
+                padding: 12px;
+                gap: 0;
+            }
+            .card {
+                padding: 12px 14px;
+            }
+            .form-row,
+            .form-row.two-col,
+            .form-row.three-col {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .output-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .section-label {
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+            .calc-row {
+                margin-top: 10px;
+            }
+            .btn-calc,
+            .btn-clear-sm {
+                height: 36px;
+                font-size: 13px;
+            }
+            .op-guide-header {
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+            .op-guide-body {
+                padding: 10px 14px 14px;
+                font-size: 12px;
+            }
+            .info-panel {
+                font-size: 11px;
+            }
+            .formula-box {
+                font-size: 11px;
+                word-break: break-all;
+            }
+        }
+
+        /* ── Small Mobile (≤ 400px) ── */
+        @media (max-width: 400px) {
+            .page-container {
+                padding: 12px 8px 20px;
+            }
+            .form-row,
+            .form-row.two-col,
+            .form-row.three-col,
+            .output-row {
+                grid-template-columns: 1fr;
+            }
+            .tab-btn {
+                padding: 9px 10px;
+                font-size: 11.5px;
+            }
+            .page-title {
+                font-size: 16px;
+            }
+            .btn-calc {
+                padding: 0 18px;
+            }
+            .radio-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+
+  <div class="page-wrap">
+
+    <!-- In-frame header -->
+    <div class="page-header-bar">
+      <div class="page-title">Cell ID Calculator</div>
+      <div class="page-subtitle">Encode and decode 2G/3G/4G/5G cell identifiers — CGI, ECGI, and NCI</div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+        <button class="tab-btn active" id="tab-cgi" onclick="switchTab('cgi')">CGI (2G/3G)</button>
+        <button class="tab-btn" id="tab-ecgi" onclick="switchTab('ecgi')">ECGI (4G LTE)</button>
+        <button class="tab-btn" id="tab-nci" onclick="switchTab('nci')">NCI (5G NR)</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- CGI (2G/3G) TAB                                          -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="cgiSection" class="active-tab">
+        <div class="main-panel">
+            <div>
+                <div class="card">
+                    <div class="section-label">Input</div>
+
+                    <!-- Encode inputs -->
+                    <div id="cgi_encode_inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>MCC:<span class="req">*</span></label>
+                                <input type="number" id="cgi_mcc" placeholder="e.g. 001" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>MNC:<span class="req">*</span></label>
+                                <input type="number" id="cgi_mnc" placeholder="e.g. 01" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>LAC:<span class="req">*</span></label>
+                                <input type="number" id="cgi_lac" placeholder="0–65535" min="0" max="65535"/>
+                            </div>
+                            <div class="form-group">
+                                <label>CI:<span class="req">*</span></label>
+                                <input type="number" id="cgi_ci" placeholder="0–65535" min="0" max="65535"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decode input -->
+                    <div id="cgi_decode_inputs" style="display:none;">
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label>CGI String:<span class="req">*</span></label>
+                                <input type="text" id="cgi_string_input" placeholder="e.g. 001-01-100-5"/>
+                            </div>
+                            <div class="form-group">
+                                <label style="color:#999;font-size:11px;">Format: MCC-MNC-LAC-CI</label>
+                                <div style="font-size:11px;color:#888;padding:8px 0;">Separator: - or . or space</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <div class="sub-label">Mode:</div>
+                        <div class="radio-group">
+                            <label><input type="radio" name="cgi_mode" value="encode" checked onchange="onCGIModeChange()"/> Encode (Components → CGI)</label>
+                            <label><input type="radio" name="cgi_mode" value="decode" onchange="onCGIModeChange()"/> Decode (CGI → Components)</label>
+                        </div>
+                    </div>
+
+                    <div class="calc-row">
+                        <button class="btn-clear-sm" onclick="clearCGI()">Clear</button>
+                        <button class="btn-calc" onclick="calculateCGI()">Calculate</button>
+                    </div>
+
+                    <div id="cgi_error" class="error-bar"></div>
+
+                    <!-- Output -->
+                    <div class="output-section">
+                        <div class="section-label">Output</div>
+                        <div class="output-row">
+                            <div class="output-field">
+                                <label>CGI:</label>
+                                <div class="output-value highlighted" id="cgi_out_cgi">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>MCC:</label>
+                                <div class="output-value" id="cgi_out_mcc">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>MNC:</label>
+                                <div class="output-value" id="cgi_out_mnc">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>LAC (Decimal):</label>
+                                <div class="output-value" id="cgi_out_lac_dec">—</div>
+                            </div>
+                        </div>
+                        <div class="output-row">
+                            <div class="output-field">
+                                <label>LAC (Hex):</label>
+                                <div class="output-value" id="cgi_out_lac_hex">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>CI (Decimal):</label>
+                                <div class="output-value" id="cgi_out_ci_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>CI (Hex):</label>
+                                <div class="output-value" id="cgi_out_ci_hex">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>CI (Binary):</label>
+                                <div class="output-value" id="cgi_out_ci_bin">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: info panel -->
+            <div class="info-panel">
+                <div style="color:#0083c1;font-weight:600;font-size:12.5px;margin-bottom:6px;">CGI — Cell Global Identifier</div>
+                <div style="font-size:12px;color:#555;line-height:1.85;">
+                    The CGI uniquely identifies a 2G or 3G cell globally.
+                </div>
+                <div style="margin-top:8px;">
+                    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Structure</div>
+                    <table class="info-table">
+                        <tr><td>Format:</td><td>MCC + MNC + LAC + CI</td></tr>
+                        <tr><td>MCC:</td><td>3 digits (0–999)</td></tr>
+                        <tr><td>MNC:</td><td>2 or 3 digits (0–999)</td></tr>
+                        <tr><td>LAC:</td><td>16 bits (0–65,535)</td></tr>
+                        <tr><td>CI:</td><td>16 bits (0–65,535)</td></tr>
+                    </table>
+                </div>
+                <hr style="border:none;border-top:1px solid #e8e8e8;margin:10px 0 8px;">
+                <div style="font-size:12px;color:#444;line-height:1.85;margin-top:8px;">
+                    <div><strong>[Step1]:</strong> Select Encode or Decode mode</div>
+                    <div><strong>[Step2]:</strong> Enter the required values</div>
+                    <div><strong>[Step3]:</strong> Press &quot;Calculate&quot; button</div>
+                </div>
+            </div>
+        </div>
+        <!-- Operation Guide -->
+        <div class="op-guide">
+            <div class="op-guide-header" onclick="toggleGuide('cgi_guide', this)">
+                <span class="arrow"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></span> Operation Guide
+            </div>
+            <div class="op-guide-body" id="cgi_guide">
+                <p><strong>CGI (Cell Global Identifier)</strong> is used in 2G (GSM) and 3G (UMTS) networks to uniquely identify a cell worldwide.</p>
+                <p><strong>Encode:</strong> Enter MCC, MNC, LAC, and CI to generate the full CGI string.</p>
+                <p><strong>Decode:</strong> Enter a CGI string (e.g., "001-01-100-5") to parse it into its individual components with decimal and hexadecimal representations.</p>
+                <p><strong>Example:</strong> MCC=001, MNC=01, LAC=100, CI=5 → CGI = 001-01-100-5</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- ECGI (4G LTE) TAB                                        -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="ecgiSection">
+        <div class="main-panel">
+            <div>
+                <div class="card">
+                    <div class="section-label">Input</div>
+
+                    <!-- Encode inputs -->
+                    <div id="ecgi_encode_inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>MCC:<span class="req">*</span></label>
+                                <input type="number" id="ecgi_mcc" placeholder="e.g. 001" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>MNC:<span class="req">*</span></label>
+                                <input type="number" id="ecgi_mnc" placeholder="e.g. 01" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>eNodeB ID:<span class="req">*</span></label>
+                                <input type="number" id="ecgi_enodeb" placeholder="0–1048575" min="0" max="1048575"/>
+                            </div>
+                            <div class="form-group">
+                                <label>Cell ID:<span class="req">*</span></label>
+                                <input type="number" id="ecgi_cellid" placeholder="0–255" min="0" max="255"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decode inputs -->
+                    <div id="ecgi_decode_inputs" style="display:none;">
+                        <div class="form-row three-col">
+                            <div class="form-group">
+                                <label>MCC (optional):</label>
+                                <input type="number" id="ecgi_dec_mcc" placeholder="e.g. 001" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>MNC (optional):</label>
+                                <input type="number" id="ecgi_dec_mnc" placeholder="e.g. 01" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>ECI (28-bit):<span class="req">*</span></label>
+                                <input type="text" id="ecgi_eci_input" placeholder="Decimal or 0x hex"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <div class="sub-label">Mode:</div>
+                        <div class="radio-group">
+                            <label><input type="radio" name="ecgi_mode" value="encode" checked onchange="onECGIModeChange()"/> Encode (Components → ECI)</label>
+                            <label><input type="radio" name="ecgi_mode" value="decode" onchange="onECGIModeChange()"/> Decode (ECI → Components)</label>
+                        </div>
+                    </div>
+
+                    <div class="calc-row">
+                        <button class="btn-clear-sm" onclick="clearECGI()">Clear</button>
+                        <button class="btn-calc" onclick="calculateECGI()">Calculate</button>
+                    </div>
+
+                    <div id="ecgi_error" class="error-bar"></div>
+
+                    <!-- Output -->
+                    <div class="output-section">
+                        <div class="section-label">Output</div>
+                        <div class="output-row">
+                            <div class="output-field">
+                                <label>ECGI:</label>
+                                <div class="output-value highlighted" id="ecgi_out_ecgi">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>ECI (Decimal):</label>
+                                <div class="output-value highlighted" id="ecgi_out_eci_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>ECI (Hex):</label>
+                                <div class="output-value" id="ecgi_out_eci_hex">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>ECI (Binary):</label>
+                                <div class="output-value" id="ecgi_out_eci_bin">—</div>
+                            </div>
+                        </div>
+                        <div class="output-row">
+                            <div class="output-field">
+                                <label>eNodeB ID (Decimal):</label>
+                                <div class="output-value" id="ecgi_out_enodeb_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>eNodeB ID (Hex):</label>
+                                <div class="output-value" id="ecgi_out_enodeb_hex">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>Cell ID (Decimal):</label>
+                                <div class="output-value" id="ecgi_out_cellid_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>Cell ID (Hex):</label>
+                                <div class="output-value" id="ecgi_out_cellid_hex">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: info panel -->
+            <div class="info-panel">
+                <div style="color:#0083c1;font-weight:600;font-size:12.5px;margin-bottom:6px;">ECGI — E-UTRAN Cell Global Identifier</div>
+                <div style="font-size:12px;color:#555;line-height:1.85;">
+                    The ECGI uniquely identifies an LTE cell globally using the ECI (E-UTRAN Cell Identifier).
+                </div>
+                <div style="margin-top:8px;">
+                    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Structure</div>
+                    <table class="info-table">
+                        <tr><td>Format:</td><td>MCC + MNC + ECI</td></tr>
+                        <tr><td>eNodeB ID:</td><td>20 bits (0–1,048,575)</td></tr>
+                        <tr><td>Cell ID:</td><td>8 bits (0–255)</td></tr>
+                        <tr><td>ECI:</td><td>28 bits (0–268,435,455)</td></tr>
+                    </table>
+                </div>
+                <div style="margin-top:8px;">
+                    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Formula</div>
+                    <div class="formula-box">ECI = (eNodeB_ID × 256) + Cell_ID</div>
+                </div>
+                <hr style="border:none;border-top:1px solid #e8e8e8;margin:10px 0 8px;">
+                <div style="font-size:12px;color:#444;line-height:1.85;margin-top:8px;">
+                    <div><strong>[Step1]:</strong> Select Encode or Decode mode</div>
+                    <div><strong>[Step2]:</strong> Enter the required values</div>
+                    <div><strong>[Step3]:</strong> Press &quot;Calculate&quot; button</div>
+                </div>
+            </div>
+        </div>
+        <!-- Operation Guide -->
+        <div class="op-guide">
+            <div class="op-guide-header" onclick="toggleGuide('ecgi_guide', this)">
+                <span class="arrow"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></span> Operation Guide
+            </div>
+            <div class="op-guide-body" id="ecgi_guide">
+                <p><strong>ECGI (E-UTRAN Cell Global Identifier)</strong> is used in 4G LTE networks.</p>
+                <p><strong>ECI Structure:</strong> The 28-bit ECI is composed of a 20-bit eNodeB ID (upper bits) and an 8-bit Cell ID (lower bits). ECI = eNodeB_ID × 256 + Cell_ID.</p>
+                <p><strong>Encode:</strong> Enter MCC, MNC, eNodeB ID, and Cell ID to compute the ECI and full ECGI.</p>
+                <p><strong>Decode:</strong> Enter an ECI value (decimal or hex with 0x prefix) to decompose it into eNodeB ID and Cell ID.</p>
+                <p><strong>Example:</strong> eNodeB=12345, Cell ID=2 → ECI = (12345 × 256) + 2 = 3,160,322</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- NCI (5G NR) TAB                                          -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="nciSection">
+        <div class="main-panel">
+            <div>
+                <div class="card">
+                    <div class="section-label">Input</div>
+
+                    <!-- Encode inputs -->
+                    <div id="nci_encode_inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>MCC:<span class="req">*</span></label>
+                                <input type="number" id="nci_mcc" placeholder="e.g. 001" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>MNC:<span class="req">*</span></label>
+                                <input type="number" id="nci_mnc" placeholder="e.g. 01" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>gNodeB ID:<span class="req">*</span></label>
+                                <input type="number" id="nci_gnodeb" placeholder="gNodeB ID"/>
+                            </div>
+                            <div class="form-group">
+                                <label>Cell ID:<span class="req">*</span></label>
+                                <input type="number" id="nci_cellid" placeholder="Cell ID"/>
+                            </div>
+                        </div>
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label>gNodeB ID Bits:</label>
+                                <select id="nci_gnb_bits" onchange="onNCIBitsChange('encode')">
+                                    <option value="22">22 bits (max 4,194,303)</option>
+                                    <option value="24">24 bits (max 16,777,215)</option>
+                                    <option value="26">26 bits (max 67,108,863)</option>
+                                    <option value="28">28 bits (max 268,435,455)</option>
+                                    <option value="30">30 bits (max 1,073,741,823)</option>
+                                    <option value="32">32 bits (max 4,294,967,295)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Cell ID Bits:</label>
+                                <input type="text" id="nci_cell_bits_display" value="14 bits (max 16,383)" disabled/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Decode inputs -->
+                    <div id="nci_decode_inputs" style="display:none;">
+                        <div class="form-row three-col">
+                            <div class="form-group">
+                                <label>MCC (optional):</label>
+                                <input type="number" id="nci_dec_mcc" placeholder="e.g. 001" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>MNC (optional):</label>
+                                <input type="number" id="nci_dec_mnc" placeholder="e.g. 01" min="0" max="999"/>
+                            </div>
+                            <div class="form-group">
+                                <label>NCI (36-bit):<span class="req">*</span></label>
+                                <input type="text" id="nci_nci_input" placeholder="Decimal or 0x hex"/>
+                            </div>
+                        </div>
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label>gNodeB ID Bits:</label>
+                                <select id="nci_dec_gnb_bits" onchange="onNCIBitsChange('decode')">
+                                    <option value="22">22 bits (max 4,194,303)</option>
+                                    <option value="24">24 bits (max 16,777,215)</option>
+                                    <option value="26">26 bits (max 67,108,863)</option>
+                                    <option value="28">28 bits (max 268,435,455)</option>
+                                    <option value="30">30 bits (max 1,073,741,823)</option>
+                                    <option value="32">32 bits (max 4,294,967,295)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Cell ID Bits:</label>
+                                <input type="text" id="nci_dec_cell_bits_display" value="14 bits (max 16,383)" disabled/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <div class="sub-label">Mode:</div>
+                        <div class="radio-group">
+                            <label><input type="radio" name="nci_mode" value="encode" checked onchange="onNCIModeChange()"/> Encode (Components → NCI)</label>
+                            <label><input type="radio" name="nci_mode" value="decode" onchange="onNCIModeChange()"/> Decode (NCI → Components)</label>
+                        </div>
+                    </div>
+
+                    <div class="calc-row">
+                        <button class="btn-clear-sm" onclick="clearNCI()">Clear</button>
+                        <button class="btn-calc" onclick="calculateNCI()">Calculate</button>
+                    </div>
+
+                    <div id="nci_error" class="error-bar"></div>
+
+                    <!-- Output -->
+                    <div class="output-section">
+                        <div class="section-label">Output</div>
+                        <div class="output-row">
+                            <div class="output-field">
+                                <label>NCGI:</label>
+                                <div class="output-value highlighted" id="nci_out_ncgi">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>NCI (Decimal):</label>
+                                <div class="output-value highlighted" id="nci_out_nci_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>NCI (Hex):</label>
+                                <div class="output-value" id="nci_out_nci_hex">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>Bit Split:</label>
+                                <div class="output-value" id="nci_out_bitsplit">—</div>
+                            </div>
+                        </div>
+                        <div class="output-row">
+                            <div class="output-field">
+                                <label>gNodeB ID (Decimal):</label>
+                                <div class="output-value" id="nci_out_gnodeb_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>gNodeB ID (Hex):</label>
+                                <div class="output-value" id="nci_out_gnodeb_hex">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>Cell ID (Decimal):</label>
+                                <div class="output-value" id="nci_out_cellid_dec">—</div>
+                            </div>
+                            <div class="output-field">
+                                <label>Cell ID (Hex):</label>
+                                <div class="output-value" id="nci_out_cellid_hex">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: info panel -->
+            <div class="info-panel">
+                <div style="color:#0083c1;font-weight:700;font-size:13px;margin-bottom:10px;">NCI — NR Cell Identifier</div>
+
+                <div style="font-size:12px;color:#555;line-height:1.9;margin-bottom:14px;">
+                    The NCI is the 5G NR equivalent of ECI, used within the NCGI (NR Cell Global Identifier).
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Structure</div>
+                    <table class="info-table">
+                        <tr><td>Format:</td><td>MCC + MNC + NCI</td></tr>
+                        <tr><td>NCI:</td><td>36 bits total</td></tr>
+                        <tr><td>gNodeB ID:</td><td>22–32 bits (configurable)</td></tr>
+                        <tr><td>Cell ID:</td><td>4–14 bits (= 36 − gNB bits)</td></tr>
+                    </table>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Formula</div>
+                    <div class="formula-box">NCI = gNodeB_ID × 2^(Cell_ID_bits) + Cell_ID</div>
+                    <div style="font-size:11px;color:#888;margin-top:6px;line-height:1.7;">Default (22-bit gNB, 14-bit Cell):<br/>NCI = gNodeB_ID × 16384 + Cell_ID</div>
+                </div>
+
+                <hr style="border:none;border-top:1px solid #e8e8e8;margin:4px 0 12px;">
+                <div style="font-size:12px;color:#444;line-height:2;">
+                    <div><strong>[Step1]:</strong> Select Encode or Decode mode</div>
+                    <div><strong>[Step2]:</strong> Set bit split &amp; enter values</div>
+                    <div><strong>[Step3]:</strong> Press &quot;Calculate&quot; button</div>
+                </div>
+            </div>
+        </div>
+        <!-- Operation Guide -->
+        <div class="op-guide">
+            <div class="op-guide-header" onclick="toggleGuide('nci_guide', this)">
+                <span class="arrow"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></span> Operation Guide
+            </div>
+            <div class="op-guide-body" id="nci_guide">
+                <p><strong>NCI (NR Cell Identifier)</strong> is the 5G equivalent of ECI, used within the NCGI structure (NR Cell Global Identifier).</p>
+                <p><strong>Bit Split:</strong> The 36-bit NCI is split between the gNodeB ID and Cell ID. The standard 5G macro setup uses 22-bit gNodeB ID and 14-bit Cell ID, but this is configurable by the operator.</p>
+                <p><strong>Encode:</strong> Enter MCC, MNC, gNodeB ID, and Cell ID to compute the NCI and full NCGI.</p>
+                <p><strong>Decode:</strong> Enter an NCI value (decimal or hex) and select the bit split to decompose it into gNodeB ID and Cell ID.</p>
+                <p><strong>Example (22/14 split):</strong> gNodeB=100, Cell ID=1 → NCI = (100 × 16384) + 1 = 1,638,401</p>
+            </div>
+        </div>
+    </div>
+
+  </div><!-- /page-wrap -->
+
+</div><!-- /page-container -->
+
+<script>
+// ============================================================
+// HELPERS
+// ============================================================
+function showErr(el, msg) {
+    el.textContent = '⚠ ' + msg;
+    el.classList.add('visible');
+}
+
+function toggleGuide(id, headerEl) {
+    const body = document.getElementById(id);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    headerEl.classList.toggle('open', !isOpen);
+}
+
+function toHex(val, minDigits) {
+    return '0x' + val.toString(16).toUpperCase().padStart(minDigits || 1, '0');
+}
+
+function toBin(val, bits) {
+    return val.toString(2).padStart(bits || 1, '0');
+}
+
+function padMCC(val) {
+    return String(val).padStart(3, '0');
+}
+
+function padMNC(val, digits) {
+    return String(val).padStart(digits || 2, '0');
+}
+
+function parseIntAuto(str) {
+    // Supports decimal and 0x hex input
+    str = str.trim();
+    if (str.toLowerCase().startsWith('0x')) {
+        return parseInt(str, 16);
+    }
+    return parseInt(str, 10);
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(tab) {
+    const tabs = ['cgi', 'ecgi', 'nci'];
+    const sectionMap = { cgi: 'cgiSection', ecgi: 'ecgiSection', nci: 'nciSection' };
+    tabs.forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        const sec = document.getElementById(sectionMap[t]);
+        if (sec) sec.classList.toggle('active-tab', t === tab);
+    });
+}
+
+// ============================================================
+// CGI (2G/3G) TAB
+// ============================================================
+function onCGIModeChange() {
+    const mode = document.querySelector('input[name="cgi_mode"]:checked').value;
+    document.getElementById('cgi_encode_inputs').style.display = mode === 'encode' ? '' : 'none';
+    document.getElementById('cgi_decode_inputs').style.display = mode === 'decode' ? '' : 'none';
+    clearCGIOutput();
+    document.getElementById('cgi_error').classList.remove('visible');
+}
+
+function calculateCGI() {
+    const errEl = document.getElementById('cgi_error');
+    errEl.classList.remove('visible');
+    const mode = document.querySelector('input[name="cgi_mode"]:checked').value;
+
+    if (mode === 'encode') {
+        const mcc = parseInt(document.getElementById('cgi_mcc').value);
+        const mnc = parseInt(document.getElementById('cgi_mnc').value);
+        const lac = parseInt(document.getElementById('cgi_lac').value);
+        const ci = parseInt(document.getElementById('cgi_ci').value);
+
+        if (isNaN(mcc) || mcc < 0 || mcc > 999) { showErr(errEl, 'MCC must be 0–999.'); return; }
+        if (isNaN(mnc) || mnc < 0 || mnc > 999) { showErr(errEl, 'MNC must be 0–999.'); return; }
+        if (isNaN(lac) || lac < 0 || lac > 65535) { showErr(errEl, 'LAC must be 0–65,535 (16 bits).'); return; }
+        if (isNaN(ci) || ci < 0 || ci > 65535) { showErr(errEl, 'CI must be 0–65,535 (16 bits).'); return; }
+
+        const mncDigits = document.getElementById('cgi_mnc').value.length >= 3 ? 3 : 2;
+        const cgiStr = padMCC(mcc) + '-' + padMNC(mnc, mncDigits) + '-' + lac + '-' + ci;
+
+        document.getElementById('cgi_out_cgi').textContent = cgiStr;
+        document.getElementById('cgi_out_mcc').textContent = padMCC(mcc);
+        document.getElementById('cgi_out_mnc').textContent = padMNC(mnc, mncDigits);
+        document.getElementById('cgi_out_lac_dec').textContent = lac;
+        document.getElementById('cgi_out_lac_hex').textContent = toHex(lac, 4);
+        document.getElementById('cgi_out_ci_dec').textContent = ci;
+        document.getElementById('cgi_out_ci_hex').textContent = toHex(ci, 4);
+        document.getElementById('cgi_out_ci_bin').textContent = toBin(ci, 16);
+
+    } else {
+        const raw = document.getElementById('cgi_string_input').value.trim();
+        if (!raw) { showErr(errEl, 'Please enter a CGI string.'); return; }
+
+        // Split by - or . or space
+        const parts = raw.split(/[\-\.\s]+/);
+        if (parts.length !== 4) {
+            showErr(errEl, 'CGI format must be MCC-MNC-LAC-CI (4 parts separated by - or . or space).'); return;
+        }
+
+        const mcc = parseInt(parts[0]);
+        const mnc = parseInt(parts[1]);
+        const lac = parseInt(parts[2]);
+        const ci = parseInt(parts[3]);
+
+        if (isNaN(mcc) || mcc < 0 || mcc > 999) { showErr(errEl, 'Invalid MCC in CGI string.'); return; }
+        if (isNaN(mnc) || mnc < 0 || mnc > 999) { showErr(errEl, 'Invalid MNC in CGI string.'); return; }
+        if (isNaN(lac) || lac < 0 || lac > 65535) { showErr(errEl, 'Invalid LAC in CGI string (must be 0–65,535).'); return; }
+        if (isNaN(ci) || ci < 0 || ci > 65535) { showErr(errEl, 'Invalid CI in CGI string (must be 0–65,535).'); return; }
+
+        const mncDigits = parts[1].length >= 3 ? 3 : 2;
+        document.getElementById('cgi_out_cgi').textContent = padMCC(mcc) + '-' + padMNC(mnc, mncDigits) + '-' + lac + '-' + ci;
+        document.getElementById('cgi_out_mcc').textContent = padMCC(mcc);
+        document.getElementById('cgi_out_mnc').textContent = padMNC(mnc, mncDigits);
+        document.getElementById('cgi_out_lac_dec').textContent = lac;
+        document.getElementById('cgi_out_lac_hex').textContent = toHex(lac, 4);
+        document.getElementById('cgi_out_ci_dec').textContent = ci;
+        document.getElementById('cgi_out_ci_hex').textContent = toHex(ci, 4);
+        document.getElementById('cgi_out_ci_bin').textContent = toBin(ci, 16);
+    }
+}
+
+function clearCGI() {
+    ['cgi_mcc', 'cgi_mnc', 'cgi_lac', 'cgi_ci', 'cgi_string_input'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('cgi_error').classList.remove('visible');
+    clearCGIOutput();
+}
+
+function clearCGIOutput() {
+    ['cgi_out_cgi', 'cgi_out_mcc', 'cgi_out_mnc', 'cgi_out_lac_dec', 'cgi_out_lac_hex', 'cgi_out_ci_dec', 'cgi_out_ci_hex', 'cgi_out_ci_bin'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+    });
+}
+
+// ============================================================
+// ECGI (4G LTE) TAB
+// ============================================================
+function onECGIModeChange() {
+    const mode = document.querySelector('input[name="ecgi_mode"]:checked').value;
+    document.getElementById('ecgi_encode_inputs').style.display = mode === 'encode' ? '' : 'none';
+    document.getElementById('ecgi_decode_inputs').style.display = mode === 'decode' ? '' : 'none';
+    clearECGIOutput();
+    document.getElementById('ecgi_error').classList.remove('visible');
+}
+
+function calculateECGI() {
+    const errEl = document.getElementById('ecgi_error');
+    errEl.classList.remove('visible');
+    const mode = document.querySelector('input[name="ecgi_mode"]:checked').value;
+
+    if (mode === 'encode') {
+        const mcc = parseInt(document.getElementById('ecgi_mcc').value);
+        const mnc = parseInt(document.getElementById('ecgi_mnc').value);
+        const enodeb = parseInt(document.getElementById('ecgi_enodeb').value);
+        const cellid = parseInt(document.getElementById('ecgi_cellid').value);
+
+        if (isNaN(mcc) || mcc < 0 || mcc > 999) { showErr(errEl, 'MCC must be 0–999.'); return; }
+        if (isNaN(mnc) || mnc < 0 || mnc > 999) { showErr(errEl, 'MNC must be 0–999.'); return; }
+        if (isNaN(enodeb) || enodeb < 0 || enodeb > 1048575) { showErr(errEl, 'eNodeB ID must be 0–1,048,575 (20 bits).'); return; }
+        if (isNaN(cellid) || cellid < 0 || cellid > 255) { showErr(errEl, 'Cell ID must be 0–255 (8 bits).'); return; }
+
+        const eci = enodeb * 256 + cellid;
+        const mncDigits = document.getElementById('ecgi_mnc').value.length >= 3 ? 3 : 2;
+        const ecgiStr = padMCC(mcc) + '-' + padMNC(mnc, mncDigits) + '-' + eci;
+
+        document.getElementById('ecgi_out_ecgi').textContent = ecgiStr;
+        document.getElementById('ecgi_out_eci_dec').textContent = eci.toLocaleString();
+        document.getElementById('ecgi_out_eci_hex').textContent = toHex(eci, 7);
+        document.getElementById('ecgi_out_eci_bin').textContent = toBin(eci, 28);
+        document.getElementById('ecgi_out_enodeb_dec').textContent = enodeb.toLocaleString();
+        document.getElementById('ecgi_out_enodeb_hex').textContent = toHex(enodeb, 5);
+        document.getElementById('ecgi_out_cellid_dec').textContent = cellid;
+        document.getElementById('ecgi_out_cellid_hex').textContent = toHex(cellid, 2);
+
+    } else {
+        const eciRaw = document.getElementById('ecgi_eci_input').value.trim();
+        if (!eciRaw) { showErr(errEl, 'Please enter an ECI value.'); return; }
+
+        const eci = parseIntAuto(eciRaw);
+        if (isNaN(eci) || eci < 0 || eci > 268435455) {
+            showErr(errEl, 'ECI must be 0–268,435,455 (28 bits).'); return;
+        }
+
+        const enodeb = Math.floor(eci / 256);
+        const cellid = eci % 256;
+
+        // Optional MCC/MNC
+        const mccRaw = document.getElementById('ecgi_dec_mcc').value.trim();
+        const mncRaw = document.getElementById('ecgi_dec_mnc').value.trim();
+        let ecgiStr = '—';
+        if (mccRaw && mncRaw) {
+            const mcc = parseInt(mccRaw);
+            const mnc = parseInt(mncRaw);
+            if (!isNaN(mcc) && !isNaN(mnc)) {
+                const mncDigits = mncRaw.length >= 3 ? 3 : 2;
+                ecgiStr = padMCC(mcc) + '-' + padMNC(mnc, mncDigits) + '-' + eci;
+            }
+        }
+
+        document.getElementById('ecgi_out_ecgi').textContent = ecgiStr;
+        document.getElementById('ecgi_out_eci_dec').textContent = eci.toLocaleString();
+        document.getElementById('ecgi_out_eci_hex').textContent = toHex(eci, 7);
+        document.getElementById('ecgi_out_eci_bin').textContent = toBin(eci, 28);
+        document.getElementById('ecgi_out_enodeb_dec').textContent = enodeb.toLocaleString();
+        document.getElementById('ecgi_out_enodeb_hex').textContent = toHex(enodeb, 5);
+        document.getElementById('ecgi_out_cellid_dec').textContent = cellid;
+        document.getElementById('ecgi_out_cellid_hex').textContent = toHex(cellid, 2);
+    }
+}
+
+function clearECGI() {
+    ['ecgi_mcc', 'ecgi_mnc', 'ecgi_enodeb', 'ecgi_cellid', 'ecgi_dec_mcc', 'ecgi_dec_mnc', 'ecgi_eci_input'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('ecgi_error').classList.remove('visible');
+    clearECGIOutput();
+}
+
+function clearECGIOutput() {
+    ['ecgi_out_ecgi', 'ecgi_out_eci_dec', 'ecgi_out_eci_hex', 'ecgi_out_eci_bin', 'ecgi_out_enodeb_dec', 'ecgi_out_enodeb_hex', 'ecgi_out_cellid_dec', 'ecgi_out_cellid_hex'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+    });
+}
+
+// ============================================================
+// NCI (5G NR) TAB
+// ============================================================
+const NCI_TOTAL_BITS = 36;
+
+function getNCIGnbBits(mode) {
+    const selId = mode === 'decode' ? 'nci_dec_gnb_bits' : 'nci_gnb_bits';
+    return parseInt(document.getElementById(selId).value);
+}
+
+function getNCICellBits(mode) {
+    return NCI_TOTAL_BITS - getNCIGnbBits(mode);
+}
+
+function onNCIBitsChange(mode) {
+    const gnbBits = getNCIGnbBits(mode);
+    const cellBits = NCI_TOTAL_BITS - gnbBits;
+    const cellMax = Math.pow(2, cellBits) - 1;
+
+    if (mode === 'encode') {
+        document.getElementById('nci_cell_bits_display').value = `${cellBits} bits (max ${cellMax.toLocaleString()})`;
+    } else {
+        document.getElementById('nci_dec_cell_bits_display').value = `${cellBits} bits (max ${cellMax.toLocaleString()})`;
+    }
+    clearNCIOutput();
+}
+
+function onNCIModeChange() {
+    const mode = document.querySelector('input[name="nci_mode"]:checked').value;
+    document.getElementById('nci_encode_inputs').style.display = mode === 'encode' ? '' : 'none';
+    document.getElementById('nci_decode_inputs').style.display = mode === 'decode' ? '' : 'none';
+    clearNCIOutput();
+    document.getElementById('nci_error').classList.remove('visible');
+}
+
+function calculateNCI() {
+    const errEl = document.getElementById('nci_error');
+    errEl.classList.remove('visible');
+    const mode = document.querySelector('input[name="nci_mode"]:checked').value;
+
+    if (mode === 'encode') {
+        const mcc = parseInt(document.getElementById('nci_mcc').value);
+        const mnc = parseInt(document.getElementById('nci_mnc').value);
+        const gnodeb = parseInt(document.getElementById('nci_gnodeb').value);
+        const cellid = parseInt(document.getElementById('nci_cellid').value);
+        const gnbBits = getNCIGnbBits('encode');
+        const cellBits = NCI_TOTAL_BITS - gnbBits;
+        const gnbMax = Math.pow(2, gnbBits) - 1;
+        const cellMax = Math.pow(2, cellBits) - 1;
+
+        if (isNaN(mcc) || mcc < 0 || mcc > 999) { showErr(errEl, 'MCC must be 0–999.'); return; }
+        if (isNaN(mnc) || mnc < 0 || mnc > 999) { showErr(errEl, 'MNC must be 0–999.'); return; }
+        if (isNaN(gnodeb) || gnodeb < 0 || gnodeb > gnbMax) {
+            showErr(errEl, `gNodeB ID must be 0–${gnbMax.toLocaleString()} (${gnbBits} bits).`); return;
+        }
+        if (isNaN(cellid) || cellid < 0 || cellid > cellMax) {
+            showErr(errEl, `Cell ID must be 0–${cellMax.toLocaleString()} (${cellBits} bits).`); return;
+        }
+
+        const cellMultiplier = Math.pow(2, cellBits);
+        const nci = gnodeb * cellMultiplier + cellid;
+        const nciMax = Math.pow(2, NCI_TOTAL_BITS) - 1;
+
+        if (nci > nciMax) {
+            showErr(errEl, `Resulting NCI exceeds 36-bit maximum (${nciMax.toLocaleString()}).`); return;
+        }
+
+        const mncDigits = document.getElementById('nci_mnc').value.length >= 3 ? 3 : 2;
+        const ncgiStr = padMCC(mcc) + '-' + padMNC(mnc, mncDigits) + '-' + nci;
+
+        document.getElementById('nci_out_ncgi').textContent = ncgiStr;
+        document.getElementById('nci_out_nci_dec').textContent = nci.toLocaleString();
+        document.getElementById('nci_out_nci_hex').textContent = toHex(nci, 9);
+        document.getElementById('nci_out_bitsplit').textContent = `${gnbBits}/${cellBits}`;
+        document.getElementById('nci_out_gnodeb_dec').textContent = gnodeb.toLocaleString();
+        document.getElementById('nci_out_gnodeb_hex').textContent = toHex(gnodeb, Math.ceil(gnbBits / 4));
+        document.getElementById('nci_out_cellid_dec').textContent = cellid.toLocaleString();
+        document.getElementById('nci_out_cellid_hex').textContent = toHex(cellid, Math.ceil(cellBits / 4));
+
+    } else {
+        const nciRaw = document.getElementById('nci_nci_input').value.trim();
+        if (!nciRaw) { showErr(errEl, 'Please enter an NCI value.'); return; }
+
+        const nci = parseIntAuto(nciRaw);
+        const nciMax = Math.pow(2, NCI_TOTAL_BITS) - 1;
+
+        if (isNaN(nci) || nci < 0 || nci > nciMax) {
+            showErr(errEl, `NCI must be 0–${nciMax.toLocaleString()} (36 bits).`); return;
+        }
+
+        const gnbBits = getNCIGnbBits('decode');
+        const cellBits = NCI_TOTAL_BITS - gnbBits;
+        const cellMultiplier = Math.pow(2, cellBits);
+
+        const gnodeb = Math.floor(nci / cellMultiplier);
+        const cellid = nci % cellMultiplier;
+
+        const gnbMax = Math.pow(2, gnbBits) - 1;
+        if (gnodeb > gnbMax) {
+            showErr(errEl, `Decoded gNodeB ID (${gnodeb.toLocaleString()}) exceeds ${gnbBits}-bit maximum (${gnbMax.toLocaleString()}). Check your bit split.`); return;
+        }
+
+        // Optional MCC/MNC
+        const mccRaw = document.getElementById('nci_dec_mcc').value.trim();
+        const mncRaw = document.getElementById('nci_dec_mnc').value.trim();
+        let ncgiStr = '—';
+        if (mccRaw && mncRaw) {
+            const mcc = parseInt(mccRaw);
+            const mnc = parseInt(mncRaw);
+            if (!isNaN(mcc) && !isNaN(mnc)) {
+                const mncDigits = mncRaw.length >= 3 ? 3 : 2;
+                ncgiStr = padMCC(mcc) + '-' + padMNC(mnc, mncDigits) + '-' + nci;
+            }
+        }
+
+        document.getElementById('nci_out_ncgi').textContent = ncgiStr;
+        document.getElementById('nci_out_nci_dec').textContent = nci.toLocaleString();
+        document.getElementById('nci_out_nci_hex').textContent = toHex(nci, 9);
+        document.getElementById('nci_out_bitsplit').textContent = `${gnbBits}/${cellBits}`;
+        document.getElementById('nci_out_gnodeb_dec').textContent = gnodeb.toLocaleString();
+        document.getElementById('nci_out_gnodeb_hex').textContent = toHex(gnodeb, Math.ceil(gnbBits / 4));
+        document.getElementById('nci_out_cellid_dec').textContent = cellid.toLocaleString();
+        document.getElementById('nci_out_cellid_hex').textContent = toHex(cellid, Math.ceil(cellBits / 4));
+    }
+}
+
+function clearNCI() {
+    ['nci_mcc', 'nci_mnc', 'nci_gnodeb', 'nci_cellid', 'nci_dec_mcc', 'nci_dec_mnc', 'nci_nci_input'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('nci_error').classList.remove('visible');
+    clearNCIOutput();
+}
+
+function clearNCIOutput() {
+    ['nci_out_ncgi', 'nci_out_nci_dec', 'nci_out_nci_hex', 'nci_out_bitsplit', 'nci_out_gnodeb_dec', 'nci_out_gnodeb_hex', 'nci_out_cellid_dec', 'nci_out_cellid_hex'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+    onNCIBitsChange('encode');
+    onNCIBitsChange('decode');
+});
+</script>
+</body>
+</html>
